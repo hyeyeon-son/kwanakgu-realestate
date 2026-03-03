@@ -11,7 +11,7 @@
     <!-- PapaParse CDN -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Pretendard:wght@400;600;700&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Pretendard:wght@400;600;700;900&display=swap');
         body { font-family: 'Pretendard', sans-serif; background-color: #f8fafc; }
         .stat-card { background: white; border-radius: 1rem; padding: 1.5rem; border: 1px solid #e2e8f0; transition: all 0.2s ease; }
         .stat-card:hover { transform: translateY(-3px); box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1); }
@@ -26,6 +26,11 @@
         /* 모달 스타일 */
         .modal-overlay { transition: opacity 0.3s ease; }
         .modal-content { transition: transform 0.3s ease; }
+
+        /* 랭킹 메달 색상 */
+        .rank-1 { background-color: #fef3c7; color: #92400e; border-color: #f59e0b; } /* Gold */
+        .rank-2 { background-color: #f1f5f9; color: #475569; border-color: #cbd5e1; } /* Silver */
+        .rank-3 { background-color: #ffedd5; color: #9a3412; border-color: #f97316; } /* Bronze */
     </style>
 </head>
 <body class="text-slate-800">
@@ -34,10 +39,10 @@
         <!-- 대시보드 헤더 -->
         <header class="flex flex-col md:flex-row md:items-center justify-between mb-10 gap-6">
             <div>
-                <h1 class="text-3xl md:text-4xl font-extrabold text-slate-900 tracking-tight">우리 동네 아파트 실거래가 대시보드</h1>
-                <p class="text-slate-500 mt-2 text-base md:text-lg">실시간 데이터를 기반으로 전월 대비 변동 추이를 분석합니다.</p>
+                <h1 class="text-3xl md:text-4xl font-extrabold text-slate-900 tracking-tight text-center md:text-left">우리 동네 아파트 실거래가 대시보드</h1>
+                <p class="text-slate-500 mt-2 text-base md:text-lg text-center md:text-left">실시간 데이터를 기반으로 전월 대비 변동 추이를 분석합니다.</p>
             </div>
-            <div id="status-container" class="flex items-center">
+            <div id="status-container" class="flex items-center justify-center md:justify-end">
                 <span id="status-badge" class="px-4 py-2 rounded-full text-xs md:text-sm font-semibold bg-blue-50 text-blue-600 border border-blue-100 animate-pulse whitespace-nowrap">
                     데이터 소스 연결 중...
                 </span>
@@ -89,6 +94,20 @@
             </div>
         </div>
 
+        <!-- 랭킹 섹션 -->
+        <section class="mb-10">
+            <div class="flex items-center gap-3 mb-6">
+                <span class="w-3 h-8 bg-amber-400 rounded-full"></span>
+                <h2 class="text-2xl font-bold text-slate-900">우리 동네 비싼 아파트 TOP 5</h2>
+            </div>
+            <div id="ranking-container" class="grid grid-cols-1 md:grid-cols-5 gap-4">
+                <!-- 랭킹 카드가 여기에 삽입됨 -->
+                <div class="col-span-full py-10 text-center bg-white rounded-3xl border border-dashed border-slate-300 text-slate-400">
+                    순위 데이터를 분석하고 있습니다...
+                </div>
+            </div>
+        </section>
+
         <!-- 메인 차트 섹션 -->
         <div class="bg-white rounded-3xl p-6 md:p-10 shadow-sm border border-slate-100 mb-10">
             <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-8 gap-4">
@@ -112,7 +131,7 @@
                 <span id="data-count-badge" class="hidden sm:inline-block text-xs font-bold px-3 py-1 bg-slate-200 text-slate-600 rounded-full">업데이트 대기</span>
             </div>
 
-            <!-- 데스크톱용 테이블 뷰 (md 이상에서만 표시) -->
+            <!-- 데스크톱용 테이블 뷰 -->
             <div class="hidden md:block overflow-x-auto table-container">
                 <table class="w-full text-left border-collapse min-w-[800px]">
                     <thead>
@@ -121,21 +140,21 @@
                             <th class="px-8 py-5 text-slate-900">아파트명</th>
                             <th class="px-8 py-5">법정동</th>
                             <th class="px-8 py-5">전용면적</th>
-                            <th class="px-8 py-5">층</th>
+                            <th class="px-8 py-5 text-center">층</th>
                             <th class="px-8 py-5 text-right text-slate-900 font-extrabold">거래금액(만원)</th>
                         </tr>
                     </thead>
                     <tbody id="data-table-body" class="divide-y divide-slate-100">
                         <tr>
-                            <td colspan="6" class="px-8 py-24 text-center text-slate-400 italic font-medium">데이터 분석 중...</td>
+                            <td colspan="6" class="px-8 py-24 text-center text-slate-400 italic font-medium">데이터 로딩 중...</td>
                         </tr>
                     </tbody>
                 </table>
             </div>
 
-            <!-- 모바일용 리스트 뷰 (md 미만에서만 표시) -->
+            <!-- 모바일용 리스트 뷰 -->
             <div id="data-mobile-list" class="md:hidden divide-y divide-slate-100">
-                <div class="p-8 text-center text-slate-400 italic">데이터 로딩 중...</div>
+                <div class="p-8 text-center text-slate-400 italic font-medium">데이터 로딩 중...</div>
             </div>
         </div>
     </div>
@@ -187,7 +206,7 @@
             <div class="absolute inset-0 border-4 border-blue-50 rounded-full"></div>
             <div class="absolute inset-0 border-4 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
         </div>
-        <p class="text-slate-400 animate-pulse font-medium">실거래 데이터를 수집하고 있습니다...</p>
+        <p class="text-slate-400 animate-pulse font-medium text-lg">실거래 데이터를 정밀 분석하고 있습니다...</p>
     </div>
 
     <script>
@@ -258,7 +277,7 @@
 
             const prices = data.map(row => cleanNumber(getValByHeader(row, '거래금액'))).filter(p => p > 0);
             
-            // 통계 계산
+            // 1. 월별 통계 및 MoM
             const monthlyStats = {};
             data.forEach(row => {
                 const dateRaw = String(getValByHeader(row, '거래일자') || '');
@@ -285,12 +304,57 @@
             document.getElementById('min-price').innerText = Math.min(...prices).toLocaleString();
             document.getElementById('data-count-badge').innerText = `총 ${data.length}개의 기록`;
 
-            renderMom('total-mom', currentData.count, prevData ? prevData.count : 0);
-            renderMom('avg-mom', currentData.sum / currentData.count, prevData ? prevData.sum / prevData.count : 0);
-            renderMom('max-mom', currentData.max, prevData ? prevData.max : 0);
-            renderMom('min-mom', currentData.min, prevData ? prevData.min : 0);
+            if (currentData) {
+                renderMom('total-mom', currentData.count, prevData ? prevData.count : 0);
+                renderMom('avg-mom', currentData.sum / currentData.count, prevData ? prevData.sum / prevData.count : 0);
+                renderMom('max-mom', currentData.max, prevData ? prevData.max : 0);
+                renderMom('min-mom', currentData.min, prevData ? prevData.min : 0);
+            }
 
-            // 목록 렌더링 (데스크톱 & 모바일)
+            // 2. 비싼 아파트 TOP 5 렌더링
+            const rankingContainer = document.getElementById('ranking-container');
+            rankingContainer.innerHTML = '';
+            
+            const top5 = [...data]
+                .sort((a, b) => cleanNumber(getValByHeader(b, '거래금액')) - cleanNumber(getValByHeader(a, '거래금액')))
+                .slice(0, 5);
+
+            top5.forEach((item, index) => {
+                const price = cleanNumber(getValByHeader(item, '거래금액'));
+                const name = getValByHeader(item, '아파트명') || '-';
+                const area = getValByHeader(item, '전용면적') || '-';
+                const floor = getValByHeader(item, '층') || '-';
+                const rank = index + 1;
+                
+                let rankClass = 'bg-white text-slate-900 border-slate-100';
+                let medalEmoji = '';
+                if (rank === 1) { rankClass = 'rank-1 border-2'; medalEmoji = '🥇'; }
+                else if (rank === 2) { rankClass = 'rank-2 border-2'; medalEmoji = '🥈'; }
+                else if (rank === 3) { rankClass = 'rank-3 border-2'; medalEmoji = '🥉'; }
+
+                const card = document.createElement('div');
+                card.className = `${rankClass} p-5 rounded-2xl shadow-sm border cursor-pointer transition-all hover:scale-105`;
+                card.onclick = () => openModal(item);
+                card.innerHTML = `
+                    <div class="flex flex-col h-full">
+                        <div class="flex justify-between items-center mb-3">
+                            <span class="font-black text-lg">${rank}위 ${medalEmoji}</span>
+                            <span class="text-[10px] font-bold opacity-60 uppercase tracking-tighter">Ranking</span>
+                        </div>
+                        <h4 class="font-bold text-slate-900 mb-2 truncate" title="${name}">${name}</h4>
+                        <div class="mt-auto">
+                            <p class="text-xl font-black mb-1">${price.toLocaleString()}<span class="text-xs font-normal ml-0.5">만원</span></p>
+                            <div class="flex justify-between text-[11px] opacity-70">
+                                <span>${area}㎡</span>
+                                <span>${floor}F</span>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                rankingContainer.appendChild(card);
+            });
+
+            // 3. 목록 렌더링
             const tableBody = document.getElementById('data-table-body');
             const mobileList = document.getElementById('data-mobile-list');
             tableBody.innerHTML = '';
@@ -314,16 +378,16 @@
                     <td class="px-8 py-5 font-bold text-slate-900">${name}</td>
                     <td class="px-8 py-5 text-slate-500">${getValByHeader(row, '법정동') || '-'}</td>
                     <td class="px-8 py-5 text-slate-400 font-mono text-xs">${getValByHeader(row, '전용면적') || '-'}㎡</td>
-                    <td class="px-8 py-5 text-slate-400">${getValByHeader(row, '층') || '-'}F</td>
+                    <td class="px-8 py-5 text-slate-400 text-center">${getValByHeader(row, '층') || '-'}F</td>
                     <td class="px-8 py-5 text-right text-base font-black ${priceColor}">${price.toLocaleString()}</td>
                 `;
                 tableBody.appendChild(tr);
 
                 // Mobile Card
-                const card = document.createElement('div');
-                card.className = 'p-6 active:bg-slate-100 cursor-pointer transition-colors flex flex-col gap-2';
-                card.onclick = () => openModal(row);
-                card.innerHTML = `
+                const mobileCard = document.createElement('div');
+                mobileCard.className = 'p-6 active:bg-slate-100 cursor-pointer transition-colors flex flex-col gap-2';
+                mobileCard.onclick = () => openModal(row);
+                mobileCard.innerHTML = `
                     <div class="flex justify-between items-start">
                         <h4 class="font-bold text-slate-900 text-base leading-tight flex-1 mr-4">${name}</h4>
                         <span class="text-lg font-black shrink-0 ${priceColor}">${price.toLocaleString()}</span>
@@ -336,7 +400,7 @@
                         <span class="px-2 py-1 bg-slate-100 rounded text-[10px] font-bold uppercase tracking-wider">상세보기</span>
                     </div>
                 `;
-                mobileList.appendChild(card);
+                mobileList.appendChild(mobileCard);
             });
 
             const labels = months;
